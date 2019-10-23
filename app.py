@@ -4,9 +4,28 @@
 
 #import dependencies
 from flask import Flask, jsonify
+import pandas as pd
+import numpy as np
+import datetime as dt
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func
 
+
+#setup flask
 app = Flask(__name__)
 
+#setup SQLAlchemy and connection to db
+engine = create_engine("sqlite:///Resources/hawaii.sqlite")
+Base = automap_base()
+Base.prepare(engine, reflect=True)
+Base.classes.keys()
+Measurement = Base.classes.measurement
+Station = Base.classes.station
+session = Session(engine)
+
+#set routes
 #homepage route
 @app.route('/')
 @app.route('/home')
@@ -44,7 +63,10 @@ def homepage():
 #precipitation page route
 @app.route('/api/v1.0/precipitation')
 def precipitation():
-    return 'This page displays precipitation data'
+    last_year_start = (dt.date(2017,8,23) - dt.timedelta(days=365)).isoformat()
+    query = (f'SELECT date, prcp FROM measurement \
+                WHERE date > "{last_year_start}"')
+    return jsonify(pd.read_sql(query, engine).to_dict(orient='records'))
 
 #station page route
 @app.route('/api/v1.0/stations')
