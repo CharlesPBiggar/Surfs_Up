@@ -7,7 +7,23 @@ from flask import Flask
 
 app = Flask(__name__)
 
-#create route, hello world
+#homepage route
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def homepage():
+    return 'This is the homepage!'
+
+#precipitation page route
+@app.route('/api/v1.0/precipitation')
+def precipitation():
+    return 'This page displays precipitation data'
+
+#station page route
+@app.route('/api/v1.0/stations')
+def stations():
+    return 'This page displays station data'
+
+#
+@app.route('/api/v1.0/tobs')
+def tobs():
+    return 'This page displays tobs data'
+
