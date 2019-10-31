@@ -39,9 +39,9 @@ def homepage():
             f'<br/>'
             f'/api/v1.0/precipitation<br/>'
             f'<br/>'
-            f'2)For station data:<br/>'
+            f'2)For stations data:<br/>'
             f'<br/>'
-            f'/api/v1.0/station<br/>'
+            f'/api/v1.0/stations<br/>'
             f'<br/>'
             f'3)For Temperature Observations:<br/>'
             f'<br/>'
@@ -71,7 +71,8 @@ def precipitation():
 #station page route
 @app.route('/api/v1.0/stations')
 def stations():
-    return 'This page displays station data'
+    query = 'SELECT station, name FROM station'
+    return jsonify(pd.read_sql(query, engine).to_dict(orient='records'))
 
 #
 @app.route('/api/v1.0/tobs')
