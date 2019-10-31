@@ -49,11 +49,15 @@ def homepage():
             f'<br/>'
             f'4) For a list of max, min and avg temperatures for a year upto specified date:<br/>'
             f'<br/>'
-            f'/api/v1.0/<start><br/>' 
+            f'/api/v1.0/start<br/>'
+            f'-- enter a date in the format YYYY-MM-DD where it says start above<br/>'
+            f'-- ex:/api/v1.0/2017-01-01<br/>'
             f'<br/>'
             f'5) For a list of max, min and avg temperatures between user specified dates:<br/>'
             f'<br/>'
-            f'/api/v1.0/<start>/<end><br/>'
+            f'/api/v1.0/start/end<br/>'
+            f'-- enter a dates in the format YYYY-MM-DD where it says start & end above<br/>'
+            f'-- ex:/api/v1.0/2017-01-01/2017-07-01<br/>'
             f'<br/>'
             f'6) If you need to return home:<br/>'
             f'<br/>'
@@ -74,7 +78,7 @@ def stations():
     query = 'SELECT station, name FROM station'
     return jsonify(pd.read_sql(query, engine).to_dict(orient='records'))
 
-#
+#tobs page route
 @app.route('/api/v1.0/tobs')
 def tobs():
     sel = [Measurement.station, Measurement.id, Measurement.tobs]
@@ -88,6 +92,35 @@ def tobs():
     station4
     return jsonify(station4)
 
+#start date page route
+@app.route('/api/v1.0/<start>')
+def startdate(start = None):
+   session = Session(engine)
+   selection = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+   startdateres = session.query(*selection).\
+       filter(Measurement.date >= start).all()
+   result = list(np.ravel(startdateres))
+   return jsonify(result)
+
+#start/end date page route
+@app.route("/api/v1.0/<start>/<end>")
+def start_end(start,end):
+    
+    session = Session(engine)
+    start_date= dt.datetime.strptime(start, '%Y-%m-%d')
+    end_date= dt.datetime.strptime(end,'%Y-%m-%d')
+    last_year = dt.timedelta(days=365)
+    start = start_date-last_year
+    end = end_date
+    
+    
+    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+
+   
+    results = session.query(*sel).\
+        filter(Measurement.date >= start).all()
+    temps = list(np.ravel(results))
+    return jsonify(temps)
 
 if __name__ == "__main__":
     app.run(debug=True)
