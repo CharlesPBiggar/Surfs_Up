@@ -77,7 +77,16 @@ def stations():
 #
 @app.route('/api/v1.0/tobs')
 def tobs():
-    return 'This page displays tobs data'
+    sel = [Measurement.station, Measurement.id, Measurement.tobs]
+    date = dt.datetime(2017, 8, 24)
+    date2 = dt.datetime(2016, 8, 22)
+    station4 = session.query(*sel).\
+        filter(Measurement.station =="USC00519281").\
+        filter(Measurement.date <= date).\
+        filter(Measurement.date >= date2).\
+        order_by(Measurement.date).all()
+    station4
+    return jsonify(station4)
 
 
 if __name__ == "__main__":
